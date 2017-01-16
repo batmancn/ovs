@@ -2030,6 +2030,10 @@ xlate_resubmit_resource_check(struct xlate_ctx *ctx)
     return false;
 }
 
+// This is main entry to process resubmit/goto action.
+// As we can see, verdict = rule_dpif_lookup_from_table:
+//   RULE_DPIF_LOOKUP_VERDICT_MATCH:...
+//
 static void
 xlate_table_action(struct xlate_ctx *ctx, ofp_port_t in_port, uint8_t table_id,
                    bool may_packet_in, bool honor_table_miss)
@@ -2058,6 +2062,7 @@ xlate_table_action(struct xlate_ctx *ctx, ofp_port_t in_port, uint8_t table_id,
         ctx->xin->flow.in_port.ofp_port = old_in_port;
 
         if (ctx->xin->resubmit_hook) {
+            // resubmit_hook just do statistics work.
             ctx->xin->resubmit_hook(ctx->xin, rule, ctx->recurse);
         }
 
@@ -2102,6 +2107,13 @@ match:
                 entry = xlate_cache_add_entry(ctx->xin->xcache, XC_RULE);
                 entry->u.rule = rule;
             }
+            // This is use rule(which is new rule from resubmit/goto table) to do
+            // inner 'xlate_actions', and then this inner 'xlate_actions' will assign
+            // new actions into ctx->actions.
+            //
+            // So in datapath, resubmit/goto action of flows will just translate into
+            // origin_match,multi-actions in all table.
+            // Which match do not need merge.
             xlate_recursively(ctx, rule);
         }
 
