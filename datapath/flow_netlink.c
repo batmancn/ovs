@@ -893,6 +893,9 @@ int ovs_nla_get_flow_metadata(struct sw_flow *flow,
 	return 0;
 }
 
+// This is to put flow(swkey, output) to skb to send this skb.
+// Like "err = ovs_nla_put_flow(upcall_info->key, upcall_info->key, user_skb);"
+// then send this skb with flow info to userspace.
 int ovs_nla_put_flow(const struct sw_flow_key *swkey,
 		     const struct sw_flow_key *output, struct sk_buff *skb)
 {

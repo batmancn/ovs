@@ -6882,6 +6882,15 @@ oftable_remove_rule(struct rule *rule)
     oftable_remove_rule__(rule->ofproto, rule);
 }
 
+// This is main ofproto layer rule insertion, and ofproto layer rule tables is orgnized
+// as bellow:
+// ofproto->tables[] holds all 256 openflow table;
+// struct oftable *table->cls holds rules, these rules is devided into "struct cls_subtable"s
+// as subtables, rules in one subtable has same fields wildcarded.
+//
+// The reason to orgnize like this is: we use two step to search flow, first search
+// masks, then search flow.
+
 /* Inserts 'rule' into its oftable, which must not already contain any rule for
  * the same cls_rule. */
 static void
