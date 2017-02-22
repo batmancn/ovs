@@ -4788,6 +4788,9 @@ netdev_linux_get_ipv4(const struct netdev *netdev, struct in_addr *ip,
 }
 
 /* Returns an AF_PACKET raw socket or a negative errno value. */
+// This socket returned by this function is RAW socket with AF_PACKET
+// field, packet send/recv by this socket is directly to/from netdevice
+// like 'eth0'.
 static int
 af_packet_sock(void)
 {

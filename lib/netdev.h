@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 
+// Extends netdev-provider.h by:
+//
+// struct netdev_stats
+// struct netdev_tunnel_config
+// netdev_* functions
+//
+// notice Thread-safety.
+
 #ifndef NETDEV_H
 #define NETDEV_H 1
 

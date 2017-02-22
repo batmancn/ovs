@@ -14,6 +14,30 @@
  * limitations under the License.
  */
 
+// Netdev of  user space OVS:
+//
+// Every port on a switch must have a corresponding netdev. This netdev must
+// minimally support a few operations, refer to netdev_ops functions. The PORTING
+// files' 'Writing a netdev Provider' section introduce more.
+//
+// For linux-based netdev, support 'internal' and 'system' type port. In netdev-linux.*,
+// normal port like 'eth0' is send by AF_PACKET socket, tunnel port like 'tun0' is
+// send by tunnel socket.
+//
+// - Provider, lib/netdev-provider.h. This define all netdev-files need to implemet.
+// - define netdev struct/api/macro, lib/netdev.*. This is basic implemet.
+// - linux based netdev implement, lib/netdev-linux.*. This is for linux SOCKET and
+//     TAP device, so this is mainly used for 'internal port'.
+// - DPDK based netdev implement, lib/netdev-dpdk.*.
+// - BSD based, lib/netdev-bsd.*.
+//
+// important:
+// strcut netdev
+// struct netdev_rxq. struct netdev_rxq_linux contains this, which means
+//     netdev_rxq_linux is sub-class of netdev_rxq.
+// struct netdev_class
+// netdev_register_provider()
+
 #ifndef NETDEV_PROVIDER_H
 #define NETDEV_PROVIDER_H 1
 
@@ -82,7 +106,7 @@ struct netdev **netdev_get_vports(size_t *size);
  * None of these members change during the lifetime of a struct netdev_rxq. */
 struct netdev_rxq {
     struct netdev *netdev;      /* Owns a reference to the netdev. */
-    int queue_id;
+    int queue_id;   // CPU Queue ID, used in DPDK.
 };
 
 struct netdev *netdev_rxq_get_netdev(const struct netdev_rxq *);
@@ -683,6 +707,8 @@ struct netdev_class {
     int (*rxq_drain)(struct netdev_rxq *rx);
 };
 
+// new type of netdev use netdev_register_provider to register its code into
+// &netdev_classes.
 int netdev_register_provider(const struct netdev_class *);
 int netdev_unregister_provider(const char *type);
 
