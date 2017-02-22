@@ -20,9 +20,10 @@
 // minimally support a few operations, refer to netdev_ops functions. The PORTING
 // files' 'Writing a netdev Provider' section introduce more.
 //
-// For linux-based netdev, support 'internal' and 'system' type port. In netdev-linux.*,
-// normal port like 'eth0' is send by AF_PACKET socket, tunnel port like 'tun0' is
-// send by tunnel socket.
+// For linux-based netdev, refer netdev_linux_class('system'),
+// netdev_tap_class('tap'), netdev_internal_class('internal'). For netdev_linux_class
+// and netdev_internal_class, normal port like 'eth0' is send by AF_PACKET socket,
+// tunnel port like 'tun0' is send by tunnel socket.
 //
 // - Provider, lib/netdev-provider.h. This define all netdev-files need to implemet.
 // - define netdev struct/api/macro, lib/netdev.*. This is basic implemet.
@@ -31,11 +32,13 @@
 // - DPDK based netdev implement, lib/netdev-dpdk.*.
 // - BSD based, lib/netdev-bsd.*.
 //
+// For kernel datapath, how vport assign with datapath, refer ovs_vport_cmd_new()
+// and how ovs call ovs_vport_cmd_new() by netlink.
+//
 // important:
-// strcut netdev
-// struct netdev_rxq. struct netdev_rxq_linux contains this, which means
-//     netdev_rxq_linux is sub-class of netdev_rxq.
-// struct netdev_class
+// strcut netdev. struct netdev_linux is sub-class of netdev.
+// struct netdev_rxq. struct netdev_rxq_linux is sub-class of netdev_rxq.
+// struct netdev_class. struct netdev_class_linux is sub-class of netdev_class.
 // netdev_register_provider()
 
 #ifndef NETDEV_PROVIDER_H

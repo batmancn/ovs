@@ -2793,6 +2793,8 @@ const struct netdev_class netdev_linux_class =
         netdev_linux_get_features,
         netdev_linux_get_status);
 
+// https://www.kernel.org/doc/Documentation/networking/tuntap.txt
+// Notice, this is user space TUN/TAP device, not for datapath.
 const struct netdev_class netdev_tap_class =
     NETDEV_LINUX_CLASS(
         "tap",
