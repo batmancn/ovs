@@ -3195,6 +3195,11 @@ xlate_actions(struct xlate_in *xin, struct xlate_out *xout)
     ovs_rwlock_unlock(&xlate_rwlock);
 }
 
+// xlate_actions__ is response for xlate actions from xin to xout, these actions
+// is do_xlate_actions->xlate_*_actions.
+//
+// Including xlate_controller_actions, which send table miss packet to controller.
+//
 /* Translates the 'ofpacts_len' bytes of "struct ofpacts" starting at 'ofpacts'
  * into datapath actions in 'odp_actions', using 'ctx'.
  *

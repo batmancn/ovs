@@ -1873,6 +1873,9 @@ pmd_load_queues(struct pmd_thread *f,
     return poll_cnt;
 }
 
+// This is main function of receive packet from netdev or other net device.
+// In for loop, receive packet from netdev to 'struct rxq_poll *poll_list',
+// then handler thread handle these packet in.
 static void *
 pmd_thread_main(void *f_)
 {
