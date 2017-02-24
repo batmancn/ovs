@@ -1873,6 +1873,8 @@ pmd_load_queues(struct pmd_thread *f,
     return poll_cnt;
 }
 
+// Differ from 'handler response of upcalls', refer to 'handler' comment.
+//
 // This is main function of receive packet from netdev or other net device.
 // In for loop, receive packet from netdev to 'struct rxq_poll *poll_list',
 // then handler thread handle these packet in.
@@ -2014,6 +2016,11 @@ dp_netdev_count_packet(struct dp_netdev *dp, enum dp_stat_type type)
     ovs_mutex_unlock(&bucket->mutex);
 }
 
+// This is pmd thread to recv packet, call trace should be:
+// dp_netdev_input
+// dp_netdev_port_input
+// ...
+// dpif_recv in handler thread.
 static void
 dp_netdev_input(struct dp_netdev *dp, struct ofpbuf *packet,
                 struct pkt_metadata *md)

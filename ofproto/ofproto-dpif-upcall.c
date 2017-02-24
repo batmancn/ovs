@@ -331,6 +331,9 @@ udpif_stop_threads(struct udpif *udpif)
     }
 }
 
+// handler thread is response for upcalls, including tables miss packets.
+// pmd thread is response for netdev packet recv.
+//
 /* Starts the handler and revalidator threads, must be enclosed in
  * ovsrcu quiescent state. */
 static void
