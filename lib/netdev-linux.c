@@ -2641,6 +2641,8 @@ netdev_linux_arp_lookup(const struct netdev *netdev,
     r.arp_flags = 0;
     ovs_strzcpy(r.arp_dev, netdev_get_name(netdev), sizeof r.arp_dev);
     COVERAGE_INC(netdev_arp_lookup);
+    // Use af_inet_ioctl to get arp entries of ports.
+    // arpreq is in /net/if_arp.h
     retval = af_inet_ioctl(SIOCGARP, &r);
     if (!retval) {
         memcpy(mac, r.arp_ha.sa_data, ETH_ADDR_LEN);
