@@ -45,7 +45,7 @@ What's here?
 
 The main components of this distribution are:
 
-    * ovs-vswitchd, a daemon that implements the switch, along with 
+    * ovs-vswitchd, a daemon that implements the switch, along with
       a companion Linux kernel module for flow-based switching.
 
     * ovsdb-server, a lightweight database server that ovs-vswitchd
@@ -106,8 +106,16 @@ of the manpages are customized to your configuration as part of the
 build process, so we recommend building Open vSwitch before reading
 the manpages.
 
-Contact 
+Contact
 -------
 
 bugs@openvswitch.org
 http://openvswitch.org/
+
+
+What's in-band bridge?
+-------------------
+
+It's used for in-band control, which is like controller to control. "remote_refresh"
+use "netdev_arp_lookup" to refresh ARP entry of related port, what's used for
+is unknown.

@@ -238,17 +238,17 @@ Kernel module
 ------------
 
 openvswitch_sources = \
-	actions.c \                 //action
-	datapath.c \                //datapath
-	dp_notify.c \               // datapath notify???
-	flow.c \                    // datapath flow struct API.
-	flow_netlink.c \        // librarys for: sw flow <-> nlattr
-	flow_table.c \      // kernel datapath flow table
-	vport.c \               // struct vport - one port within a datapath
+	actions.c \                 //actions library, only API.
+	datapath.c \                //datapath API and its variables.
+	dp_notify.c \               // only ovs_dp_device_notifier for netdev up/down event process.
+	flow.c \                    // only flow API.
+	flow_netlink.c \        // only API for: sw flow <-> nlattr
+	flow_table.c \      // flow table, API, flow_cache and flow_stats_cache.
+	vport.c \               // vport_ops_list, dev_table, and some struct like vport_ops.
 	vport-gre.c \       // GRE port
-	vport-internal_dev.c \      // internal port
+	vport-internal_dev.c \      // struct vport_ops ovs_internal_vport_ops, struct net_device_ops internal_dev_netdev_ops, struct ethtool_ops internal_dev_ethtool_ops.
 	vport-lisp.c \      // LISP tunnel port
-	vport-netdev.c \    // This is linux netdevice send/recv skb implement
+	vport-netdev.c \    // This is linux netdevice send/recv skb implement. Different from other vport is who recv this packet.
 	vport-vxlan.c       // vxlan port
 
 // These are api library used in above

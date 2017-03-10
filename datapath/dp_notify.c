@@ -99,6 +99,10 @@ static int dp_device_event(struct notifier_block *unused, unsigned long event,
 	return NOTIFY_DONE;
 }
 
+// Linux Notifier Chains:
+// http://blog.csdn.net/batoom/article/details/7406338
+//
+// This is used in datapath.c:dp_init() to process netdev(eth0) event.
 struct notifier_block ovs_dp_device_notifier = {
 	.notifier_call = dp_device_event
 };

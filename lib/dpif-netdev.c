@@ -2020,7 +2020,7 @@ dp_netdev_count_packet(struct dp_netdev *dp, enum dp_stat_type type)
 // dp_netdev_input
 // dp_netdev_port_input
 // ...
-// dpif_recv in handler thread.
+// dpif_recv() in handler thread, or dp_netdev_port_input() in pmd thread.
 static void
 dp_netdev_input(struct dp_netdev *dp, struct ofpbuf *packet,
                 struct pkt_metadata *md)

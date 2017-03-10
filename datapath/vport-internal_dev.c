@@ -99,6 +99,12 @@ static void internal_dev_getinfo(struct net_device *netdev,
 	strlcpy(info->driver, "openvswitch", sizeof(info->driver));
 }
 
+// ethtool_ops is in include/linux/ethtool.h
+// http://lxr.free-electrons.com/source/include/linux/ethtool.h#L302
+//
+// This is to use ethtool struct and customize some function, for functions
+// not defined is NULL, function like 'ethtool_op_get_link' is system default
+// function, function 'internal_dev_getinfo' is our function.
 static const struct ethtool_ops internal_dev_ethtool_ops = {
 	.get_drvinfo	= internal_dev_getinfo,
 	.get_link	= ethtool_op_get_link,
@@ -182,6 +188,9 @@ static struct vport *internal_dev_create(const struct vport_parms *parms)
 
 	netdev_vport = netdev_vport_priv(vport);
 
+        // use alloc_netdev to create 'struct net_device'
+        //
+        // http://blog.csdn.net/ropenyuan/article/details/6763663
 	netdev_vport->dev = alloc_netdev(sizeof(struct internal_dev),
 					 parms->name, do_setup);
 	if (!netdev_vport->dev) {
@@ -189,6 +198,8 @@ static struct vport *internal_dev_create(const struct vport_parms *parms)
 		goto error_free_vport;
 	}
 
+        // dev_net_set:
+        // to set 'struct net' into 'struct net_device'.
 	dev_net_set(netdev_vport->dev, ovs_dp_get_net(vport->dp));
 	internal_dev = internal_dev_priv(netdev_vport->dev);
 	internal_dev->vport = vport;
@@ -197,13 +208,17 @@ static struct vport *internal_dev_create(const struct vport_parms *parms)
 	if (vport->port_no == OVSP_LOCAL)
 		netdev_vport->dev->features |= NETIF_F_NETNS_LOCAL;
 
+        // rtnl_lock: to lock netdev global chain.
 	rtnl_lock();
+        // register netdev into netdev global chain.
 	err = register_netdevice(netdev_vport->dev);
 	if (err)
 		goto error_free_netdev;
 
 	dev_set_promiscuity(netdev_vport->dev, 1);
 	rtnl_unlock();
+
+        // http://blog.csdn.net/whisper_j/article/details/8636428
 	netif_start_queue(netdev_vport->dev);
 
 	return vport;
