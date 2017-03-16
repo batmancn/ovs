@@ -80,3 +80,8 @@ use vtep-ctl to simulate one:
 4. Direct unicast destinations out a different tunnel:
 
     vtep-ctl add-ucast-remote ls0 11:22:33:44:55:66 192.168.1.33
+
+
+L2POP add flow directly by openflow, not use ovs-vtep, this ovs-vtep is only
+simulater, refer http://www.aboutyun.com/forum.php?mod=viewthread&tid=16564&highlight=neutron%2B%2B%CF%B5%C1%D0
+
