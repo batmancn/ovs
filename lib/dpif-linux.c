@@ -717,6 +717,8 @@ exit:
     return error;
 }
 
+// main thread:
+// type_run() -> dpif_port_add() -> dpif_linux_port_add().
 static int
 dpif_linux_port_add(struct dpif *dpif_, struct netdev *netdev,
                     odp_port_t *port_nop)

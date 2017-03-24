@@ -669,6 +669,8 @@ netdev_linux_common_construct(struct netdev_linux *netdev)
 }
 
 /* Creates system and internal devices. */
+// real create work is in 'ifconfig add eth1' command, this is just test
+// whether this device is up, detail refer comment from 'get_flags'.
 static int
 netdev_linux_construct(struct netdev *netdev_)
 {
@@ -687,6 +689,10 @@ netdev_linux_construct(struct netdev *netdev_)
              * they exist in the kernel, because creating them in the kernel
              * happens by passing a netdev object to dpif_port_add().
              * Therefore, ignore the error. */
+             // As 'netdev_linux_construct' is called for 'br0' port when bridge
+             // is created, we have to use this netdev to triger type_run() to
+             // create internal port in kernel. After 'br0' is created, then
+             // 'dpif_linux_port_add' will get this netdev and then create in kernel.
         }
     }
 
@@ -2786,6 +2792,8 @@ netdev_linux_update_flags(struct netdev *netdev_, enum netdev_flags off,
     netdev_linux_rxq_drain,                                     \
 }
 
+// netdev_linux_class and netdev_internal_class are same in
+// construct and send recv.
 const struct netdev_class netdev_linux_class =
     NETDEV_LINUX_CLASS(
         "system",
@@ -4644,6 +4652,16 @@ get_flags(const struct netdev *dev, unsigned int *flags)
     int error;
 
     *flags = 0;
+    // use ioctl to get flags of dev->name this device.
+    // we have to install this device first, or we will get error.
+    // for example, we have to create eth1 first, then use
+    // `ovs-vsctl add br1 eth1` command.
+    //
+    // at last, it's: ioctl(sock, command, arg):
+    //   sock = socket(AF_INET, SOCK_DGRAM, 0)
+    //   command = SIOCGIFFLAGS
+    //   arg = ifr
+    //     ifr->ifr_name =  dev->name
     error = af_inet_ifreq_ioctl(dev->name, &ifr, SIOCGIFFLAGS, "SIOCGIFFLAGS");
     if (!error) {
         *flags = ifr.ifr_flags;
