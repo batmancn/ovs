@@ -246,11 +246,13 @@ static void internal_dev_destroy(struct vport *vport)
 	rtnl_unlock();
 }
 
+// this is recv function of internal port in kernel.
 static int internal_dev_recv(struct vport *vport, struct sk_buff *skb)
 {
 	struct net_device *netdev = netdev_vport_priv(vport)->dev;
 	int len;
 
+        // 1. check netdev link up.
 	if (unlikely(!(netdev->flags & IFF_UP))) {
 		kfree_skb(skb);
 		return 0;
@@ -272,17 +274,20 @@ static int internal_dev_recv(struct vport *vport, struct sk_buff *skb)
 	}
 #endif
 
+        // 2. check skb.
 	len = skb->len;
 
 	skb_dst_drop(skb);
 	nf_reset(skb);
 	secpath_reset(skb);
 
+        // 3. compose skb.
 	skb->dev = netdev;
 	skb->pkt_type = PACKET_HOST;
 	skb->protocol = eth_type_trans(skb, netdev);
 	skb_postpull_rcsum(skb, eth_hdr(skb), ETH_HLEN);
 
+        // 4. use 'netif_rx' to send skb into IP stack.
 	netif_rx(skb);
 
 	return len;
