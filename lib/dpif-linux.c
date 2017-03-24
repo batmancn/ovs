@@ -623,6 +623,14 @@ netdev_to_ovs_vport_type(const struct netdev *netdev)
     }
 }
 
+// This is work for vport(for physical netdevice is manage by `ifconfig` command)
+// of ovs: internal netdev; tunnel netdev like vxlan.
+// This function send 'request'(like request.cmd = OVS_VPORT_CMD_NEW)
+// to kernel module of ovs by netlink.
+//
+// For internal netdev in ovs-kernel module: this netdev is use for ovs to
+// communicate with kernel IP stack.
+// For vxlan netdev in ovs-kernel module: TBD.
 static int
 dpif_linux_port_add__(struct dpif_linux *dpif, struct netdev *netdev,
                       odp_port_t *port_nop)

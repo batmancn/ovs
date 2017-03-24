@@ -214,6 +214,13 @@ struct netdev *netdev_rxq_get_netdev(const struct netdev_rxq *);
  * although implementations should try to avoid this. connectivity_seq_get()
  * can be used to acquire a reference to the struct seq. The interface is
  * described in detail in seq.h. */
+ // netdev_class is used for ofproto, for dpif layer, use other function.
+ // so basic work-flow is:
+ //   1. create netdev in ofproto layer;
+ //     2. use dpif function to attach kernel-netdev into this netdev by different type
+ //     of netdev:
+ //       2.1 for internal netdev like 'br0' port in 'br0' bridge, first create in ofproto
+ //       layer, then use 'dpif_linux_port_add' to add into kernel.
 struct netdev_class {
     /* Type of netdevs in this class, e.g. "system", "tap", "gre", etc.
      *
