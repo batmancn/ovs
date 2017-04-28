@@ -1250,6 +1250,14 @@ dpif_operate(struct dpif *dpif, struct dpif_op **ops, size_t n_ops)
             /* Count 'chunk', the number of ops that can be executed without
              * needing any help.  Ops that need help should be rare, so we
              * expect this to ordinarily be 'n_ops', that is, all the ops. */
+             // Which is: in ops[], op->type != DPIF_OP_EXECUTE is in front, others is
+             // in back.
+             // For ops which op->type != DPIF_OP_EXECUTE, dpif provider can handle
+             // itself without help here by 'dpif_linux_operate__', which is fill op by
+             // net_link msg.
+             // For ops which op->type == DPIF_OP_EXCUTE, which is excute action in
+             // datapath, we have to help the dpif provider to execute one op here by
+             // 'dpif_execute', refer its comment.
             for (chunk = 0; chunk < n_ops; chunk++) {
                 struct dpif_op *op = ops[chunk];
 
