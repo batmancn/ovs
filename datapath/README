@@ -338,6 +338,24 @@ https://www.kernel.org/doc/Documentation/RCU/rcu.txt
 https://www.ibm.com/developerworks/cn/linux/l-rcu/
 
 
+Datapath设计?
+------------
+
+与TCPIP、协议栈、linux bridge一样，这个datapath用来接受、操作、
+发送SKB。
+
+datapath就是一张非常大的table，match是flow.h中支持的match，action
+是actions.c中支持的action。对于这张table，可以通过netlink接口与
+user space通信，功能包括增删查改。接口包括：
+ovs_dp_cmd_set
+ovs_flow_cmd_set
+ovs_vport_cmd_set
+
+数据包从协议无关接口层收入datapath中，匹配table中的规则，可能转发
+可能送到user space。除此以外，用户空间还可以直接下发数据包。这些
+都是通过netlink进行通信。
+
+
 Basic datapath flow
 ----------------
 
@@ -346,10 +364,47 @@ Refer to ../old_comments/datapath/README.md .
 This is main TCPIP thread run OVS code, as OVS is instead of TCPIP stack.
 
 
-### How to get/send packet in datapath?
+How to get/send packet in datapath?
+----------------------------------
 
-For send packet, send packet in OVS is in 'netdev_linux_send in netdev-linux.c' by 'sendmsg' through 'af_packet_sock' which is raw socket. Call trace is 'dpif_netdev_execute/dp_netdev_input -> dp_netdev_execute_actions -> odp_execute_actions -> dp_execute_cb -> netdev_send -> netdev_linux_send'.
+For send packet, send packet in OVS is in 'netdev_linux_send in netdev-linux.c'
+by 'sendmsg' through 'af_packet_sock' which is raw socket. Call trace is 
+'dpif_netdev_execute/dp_netdev_input -> dp_netdev_execute_actions -> 
+odp_execute_actions -> dp_execute_cb -> netdev_send -> netdev_linux_send'.
 
-The 'dp_netdev_input' is called by 'pmd thread', which work is packet recv and then send, explain refer to 'dp_netdev_input' API's commect above.
+The 'dp_netdev_input' is called by 'pmd thread', which work is packet recv 
+and then send, explain refer to 'dp_netdev_input' API's commect above.
 
-The 'dpif_netdev_execute' is member function of 'dpif_class'.execute(), which work is send packet from OVS as its need. Call trace is 'dpif_operate -> dpif_execute -> dpif_netdev_execute'. Deetail comment refer to comments in 'dpif_operate' function.
+The 'dpif_netdev_execute' is member function of 'dpif_class'.execute(), which
+work is send packet from OVS as its need. Call trace is 'dpif_operate -> 
+dpif_execute -> dpif_netdev_execute'. Deetail comment refer to comments in 
+'dpif_operate' function.
+
+
+Important struct in datapath?
+----------------------------
+
+Datapath is another kind of network stack like TCPIP, it's use netif_rx() to
+recv packet from netdevice unrelated layer, and use net_hard_xmit() to send.
+Also Datapath could use netlink to communicate with user space application.
+
+Some important struct is:
+Flow related:
+struct sw_flow {
+    struct rcu_head rcu;
+    struct hlist_node hash_node[2];
+    u32 hash;
+    int stats_last_writer;      /* NUMA-node id of the last writer on
+                     * 'stats[0]'.
+                     */
+    struct sw_flow_key key;
+    struct sw_flow_key unmasked_key;
+    struct sw_flow_mask *mask;
+    struct sw_flow_actions __rcu *sf_acts;
+    struct flow_stats __rcu *stats[]; /* One for each NUMA node.  First one
+                       * is allocated at flow creation time,
+                       * the rest are allocated on demand
+                       * while holding the 'stats[0].lock'.
+                       */
+};
+

@@ -38,7 +38,8 @@ static void netdev_port_receive(struct vport *vport, struct sk_buff *skb);
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,39)
 /* Called with rcu_read_lock and bottom-halves disabled. */
-// This is skb process function register entry.
+// This is skb process function register entry, it's used in netdev creation function
+// as callback function to register into netdev layer.
 static rx_handler_result_t netdev_frame_hook(struct sk_buff **pskb)
 {
 	struct sk_buff *skb = *pskb;
