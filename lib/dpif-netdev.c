@@ -2840,6 +2840,10 @@ cycles_count_end(struct dp_netdev_pmd_thread *pmd,
     non_atomic_ullong_add(&pmd->cycles.n[type], interval);
 }
 
+// 这个函数是pmd收包之后进行ovs逻辑的函数
+// 主要过程是
+// netdev_rxq_recv: 处理收到的包到batch中
+// dp_netdev_input: 将包给ovs的逻辑进行处理
 static void
 dp_netdev_process_rxq_port(struct dp_netdev_pmd_thread *pmd,
                            struct dp_netdev_port *port,
@@ -3088,6 +3092,8 @@ pmd_load_queues_and_ports(struct dp_netdev_pmd_thread *pmd,
     return i;
 }
 
+// 这是pmd主线程，可以多个pmd一起存在，
+// 可以不同的pmd绑定到不同的lcore上。
 static void *
 pmd_thread_main(void *f_)
 {
@@ -4208,6 +4214,10 @@ fast_path_processing(struct dp_netdev_pmd_thread *pmd,
  * in 'packets': in this case 'mdinit' is false and this function needs to
  * initialize it using 'port_no'.  If the metadata in 'packets' is already
  * valid, 'md_is_valid' must be true and 'port_no' will be ignored. */
+// 这个函数按照ovs的逻辑处理包，其中
+// fast_path_processing按照类似kernel datapath的逻辑
+// 处理，也就是有流表按照流表走，
+// 没有流表按照upcall处理。
 static void
 dp_netdev_input__(struct dp_netdev_pmd_thread *pmd,
                   struct dp_packet_batch *packets,
